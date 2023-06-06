@@ -46,6 +46,8 @@ route.get('/getStudent',async(req,res)=>{
     
 })
 
+
+
 route.get('/getByGroup',async(req,res)=>{
     try{
        let query = [{
@@ -84,9 +86,12 @@ route.get('/getByGroupAndMatch',async(req,res)=>{
 
 route.get('/getByCount',async(req,res)=>{
     try{
-        let query = [{
-            $count:'allDocumentsCount'
-        }]
+        //const result = await Student.find().count();
+        let query = [
+            {$match:{SS:{$gte:'90'}}},//stage 1
+            {$group:{_id:{SS:'$SS'}}},//stage 2
+            {$count:'Total'}  //stage 3
+        ]
         const result = await Student.aggregate(query);
         if(result){
             res.status(200).json({status:true,message:'success',result:result})
@@ -99,6 +104,24 @@ route.get('/getByCount',async(req,res)=>{
         console.log("Error",err);
     }
 
+});
+
+route.get('/getBySort',async(req,res)=>{
+    try{
+        let query = [{
+            $sort:{Name:1}
+        }]
+        const result = await Student.aggregate(query);
+        if(result){
+            res.status(200).json({status:true,message:'success',result:result})
+          }else{
+           res.status(400).json({status:false,message:'Failed'})
+          }
+
+
+    }catch(err){
+        console.log((err));
+    }
 })
 
 
