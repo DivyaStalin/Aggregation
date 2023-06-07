@@ -25,30 +25,11 @@ const userSchema = new Schema({
         type:String,
         required:true
     },
-    
-        English:{
-            type:String,
+    Age:{
+        type:Number,
         required:true
-        },
-        Tamil:{
-            type:String,
-        required:true
-        },
-        Maths:{
-            type:String,
-        required:true
-        },
-        Science:{
-            type:String,
-        required:true
-        },
-        SS:{
-            type:String,
-        required:true
-        }
+    }
 
-        
-    
     
 },
 

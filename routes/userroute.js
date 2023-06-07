@@ -2,19 +2,14 @@ const Student = require("../models/usermodel");
 const route = require('express').Router();
 
 
-route.post('/addMarks',async(req,res)=>{
+route.post('/addStudent',async(req,res)=>{
     try{
         const student = new Student({
             Name:req.body.Name,
             Rollno:req.body.Rollno,
             Gender:req.body.Gender,
             Standard:req.body.Standard,
-            
-           English:req.body.English,
-            Tamil:req.body.Tamil,
-            Maths:req.body.Maths,
-            Science:req.body.Science,
-            SS:req.body.SS
+            Age:req.body.Age
         });
         const result = await student.save();
         if(result){
@@ -70,7 +65,7 @@ route.get('/getByGroupAndMatch',async(req,res)=>{
             //stage 1
               //{$match:{'Gender':req.body.Gender}},
               //stage 2
-              {$group:{_id:{Gender:'$Gender',English:'$English'}}},
+              {$group:{_id:{Gender:'$Gender',English:'$Age'}}},
               {$match:{'_id.Gender':req.body.Gender}},
             ];
         const result = await Student.aggregate(query);
@@ -89,7 +84,7 @@ route.get('/getByCount',async(req,res)=>{
         //const result = await Student.find().count();
         let query = [
             {$match:{SS:{$gte:'90'}}},//stage 1
-            {$group:{_id:{SS:'$SS'}}},//stage 2
+            {$group:{_id:{Age:'$Age'}}},//stage 2
             {$count:'Total'}  //stage 3
         ]
         const result = await Student.aggregate(query);
@@ -108,8 +103,9 @@ route.get('/getByCount',async(req,res)=>{
 
 route.get('/getBySort',async(req,res)=>{
     try{
-        let query = [{
-            $sort:{Name:1}
+        let query = [
+            {$match:{Gender:{$ne:'male'}}},
+            {$sort:{Rollno:1,Name:1}   //1-ascending,-1-decesding
         }]
         const result = await Student.aggregate(query);
         if(result){
@@ -121,6 +117,50 @@ route.get('/getBySort',async(req,res)=>{
 
     }catch(err){
         console.log((err));
+    }
+})
+route.get('/getSum',async(req,res)=>{
+    try{
+        let query = [{
+            $group:{_id:'$Gender',
+            //count:{$sum:1}}
+            avgEnglishMarks:{$avg:'$Age'}
+        }
+        }
+        
+        ]
+        const result = await Student.aggregate(query);
+        if(result){
+            res.status(200).json({status:true,message:'success',result:result})
+          }else{
+           res.status(400).json({status:false,message:'Failed'})
+          }
+
+
+    }catch(err){
+        console.log(err);
+    }
+})
+//Unary Operators $type,$or,$lt,$gt,$and,$multiply
+
+route.get('/Unary',async(req,res)=>{
+    try{
+        let query = [
+            {
+                $project:{
+                    _id:0,Name:1,Age:{$type:"$Age"},Name:{$type:"Name"}
+                }
+    }]
+        const result = await Student.aggregate(query);
+        if(result){
+            res.status(200).json({status:true,message:'success',result:result})
+          }else{
+           res.status(400).json({status:false,message:'Failed'})
+          }
+
+
+    }catch(err){
+        console.log(err);
     }
 })
 
